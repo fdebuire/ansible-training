@@ -1,0 +1,19 @@
+---
+- name: Purge folder
+  file:
+    path: "{{ app_server_path }}"
+    state: absent
+- name: Create folder again
+  file:
+    path: "{{ app_server_path }}"
+    state: directory
+    mode: '0755'
+- name: Git clone
+  git:
+    repo: "{{ app_repo_path }}"
+    dest: "{{ app_server_path }}"
+- name: Replace current db host with localhost
+  replace:
+    path: "{{ app_server_path }}/index.php"
+    regexp: '172.20.1.101'
+    replace: '3.8.153.187'

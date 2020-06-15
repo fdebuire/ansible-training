@@ -1,0 +1,14 @@
+---
+- name: Install firewalld
+  apt:
+    name: firewalld
+    state: present
+- name: Start and enable firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+- name: Install Git
+  apt:
+    name: git
+    state: present

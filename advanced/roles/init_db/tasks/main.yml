@@ -1,0 +1,21 @@
+---
+- name: Create Application Database
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+- name: Create Database user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_user_password }}"
+    priv: '*.*:ALL'
+    state: present
+    host: '%'
+- name: Upload load script
+  copy:
+    src: data/db-load-script.sql
+    dest: /tmp
+- name: Run load script
+  mysql_db:
+    name: "{{ db_name }}"
+    state: import
+    target: /tmp/db-load-script.sql

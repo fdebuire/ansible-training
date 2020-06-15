@@ -1,0 +1,15 @@
+---
+- name: Install required packages
+  apt:
+    name:
+      - apache2
+      - php
+      - php-mysql
+    state: present
+- name: Configure firewall
+  firewalld:
+    port: 80/tcp
+    zone: public
+    immediate: yes
+    permanent: yes
+    state: enabled

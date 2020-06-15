@@ -1,0 +1,2 @@
+app_repo_path: 'https://github.com/kodekloudhub/learning-app-ecommerce.git'
+app_server_path: /var/www/html

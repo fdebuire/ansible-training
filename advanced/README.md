@@ -1,0 +1,1 @@
+ansible-playbook playbook-advanced-course.yml -i inventory.ini --ask-become-pass

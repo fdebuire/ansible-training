@@ -1,0 +1,118 @@
+- name: Install firewalld
+  hosts: target2
+  become: yes
+  tasks:
+    - name: Install firewalld
+      apt:
+        name: firewalld
+        state: present
+    - name: Start firewalld
+      service:
+        name: firewalld
+        state: started
+    - name: Enable firewalld
+      service:
+        name: firewalld
+        enabled: yes
+
+- name: Install mariaDB
+  hosts: target2
+  become: yes
+  tasks:
+    - name: Install mariaDB
+      apt:
+        name: mariadb-server
+        state: present
+    - name: Start mariaDB
+      service:
+        name: mariadb
+        state: started
+    - name: Enable mariaDB
+      service:
+        name: mariadb
+        enabled: yes
+    - name: Configure firewall
+      firewalld:
+        port: 3306/tcp
+        zone: public
+        immediate: yes
+        permanent: yes
+        state: enabled
+
+- name: Init and load database
+  hosts: target2
+  become: yes
+  tasks:
+    - name: Install python-mysqldb
+      apt:
+        name: python3-mysqldb
+        state: present
+    - name: Upload init script
+      copy:
+        src: data/init.sql
+        dest: /tmp
+    - name: Run init script
+      mysql_db:
+        name: all
+        state: import
+        target: /tmp/init.sql
+    - name: Upload load script
+      copy:
+        src: data/db-load-script.sql
+        dest: /tmp
+    - name: Run load script
+      mysql_db:
+        name: ecomdb
+        state: import
+        target: /tmp/db-load-script.sql
+
+- name: Install httpd and php
+  hosts: target2
+  become: yes
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apache2
+          - php
+          - php-mysql
+        state: present
+    - name: Configure firewall
+      firewalld:
+        port: 80/tcp
+        zone: public
+        immediate: yes
+        permanent: yes
+        state: enabled
+
+- name: Deploy project
+  hosts: target2
+  become: yes
+  tasks:
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+    - name: Purge folder
+      file:
+        path: /var/www/html
+        state: absent
+    - name: Create folder again
+      file:
+        path: /var/www/html
+        state: directory
+        mode: '0755'
+    - name: Git clone
+      git:
+        repo: 'https://github.com/kodekloudhub/learning-app-ecommerce.git'
+        dest: /var/www/html/
+
+- name: Configure database host in app
+  hosts: target2
+  become: yes
+  tasks:
+    - name: Replace current host with localhost
+      replace:
+        path: /var/www/html/index.php
+        regexp: '172.20.1.101'
+        replace: 'localhost'

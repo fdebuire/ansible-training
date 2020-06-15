@@ -1,0 +1,34 @@
+- name: Install prerequisites
+  hosts: db_servers, web_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - prerequisite
+
+- name: Setup Database Server
+  hosts: db_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - maria_db
+
+- name: Setup Web Servers
+  hosts: web_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - php_server
+
+- name: Init app database
+  hosts: db_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - init_db
+
+- name: Deploy app from Git
+  hosts: web_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - deploy_app
